@@ -1,0 +1,43 @@
+@model DashboardAdmin.Models.DashboardCard
+@using DashboardAdmin.Models
+@functions {
+    string GetTrendLabel(Trend t) => t switch
+    {
+        Trend.Up => "Рост",
+        Trend.Down => "Снижение",
+        Trend.Stable => "Стабильно",
+        _ => "—"
+    };
+
+    // Классификация значения
+    string GetValueClass(decimal value)
+    {
+        if (value < 0) return "Отрицательное";
+        if (value < 1000) return "Низкое";
+        if (value <= 10000) return "Среднее";
+        return "Высокое";
+    }
+
+    // CSS-класс бейджа под тот же диапазон
+    string GetValueBadgeCss(decimal value)
+    {
+        if (value < 0) return "negative";
+        if (value < 1000) return "low";
+        if (value <= 10000) return "mid";
+        return "high";
+    }
+}
+<div class="card">
+    <h4>@Model.Title</h4>
+    <div class="value">
+        @Model.Value @Model.Unit
+        @* вызов метода @functions прямо из разметки *@
+        <span class="badge @GetValueBadgeCss(Model.Value)">@GetValueClass(Model.Value)</span>
+    </div>
+    <div>Тренд: @GetTrendLabel(Model.Trend)</div>
+    @if (Model.Value < 0)
+    {
+        <span class="badge negative">Отрицательное значение</span>
+    }
+    <p>@Model.Description</p>
+</div>

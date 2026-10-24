@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TaskFlowApi</name>
+    </assembly>
+    <members>
+        <member name="T:TaskFlowApi.Controllers.CommentsController">
+            <summary>Комментарии задач (вложенный ресурс).</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.CommentsController.GetForTask(System.Int32)">
+            <summary>Список комментариев задачи.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.CommentsController.Create(System.Int32,TaskFlowApi.DTOs.CreateCommentDto)">
+            <summary>Добавить комментарий к задаче.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.CommentsController.Delete(System.Int32)">
+            <summary>Удалить комментарий.</summary>
+        </member>
+        <member name="T:TaskFlowApi.Controllers.ProjectsController">
+            <summary>Управление проектами.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.ProjectsController.GetAll">
+            <summary>Список всех проектов.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.ProjectsController.GetById(System.Int32)">
+            <summary>Проект по ID.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.ProjectsController.Create(TaskFlowApi.DTOs.CreateProjectDto)">
+            <summary>Создать проект.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.ProjectsController.Update(System.Int32,TaskFlowApi.DTOs.UpdateProjectDto)">
+            <summary>Обновить проект.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.ProjectsController.Delete(System.Int32)">
+            <summary>Удалить проект (задачи удалятся каскадно).</summary>
+        </member>
+        <member name="T:TaskFlowApi.Controllers.TasksController">
+            <summary>Управление задачами (v1).</summary>
+        </member>
+        <member name="T:TaskFlowApi.Controllers.TasksV2Controller">
+            <summary>Управление задачами (v2) - Priority, пагинация, идемпотентность.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.TasksV2Controller.GetPaged(System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.String)">
+            <summary>Список задач с пагинацией, фильтрацией, сортировкой и поиском.</summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Размер страницы (по умолчанию 10, максимум 50).</param>
+            <param name="status">Фильтр по статусу.</param>
+            <param name="priority">Фильтр по приоритету.</param>
+            <param name="sortBy">Поле сортировки: title, dueDate, createdAt.</param>
+            <param name="sortDir">Направление: asc / desc.</param>
+            <param name="search">Поиск по Title (содержит).</param>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.TasksV2Controller.GetById(System.Int32)">
+            <summary>Задача v2 по ID.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.TasksV2Controller.Create(TaskFlowApi.DTOs.CreateTaskDto)">
+            <summary>Создать задачу с защитой от дубликатов через X-Idempotency-Key.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Controllers.TasksV2Controller.ChangeStatus(System.Int32,TaskFlowApi.DTOs.TaskStatusUpdateDto)">
+            <summary>Сменить статус задачи. Нельзя закрыть без комментариев.</summary>
+        </member>
+        <member name="T:TaskFlowApi.Entities.Comment">
+            <summary>Комментарий к задаче.</summary>
+        </member>
+        <member name="T:TaskFlowApi.Entities.TaskItem">
+            <summary>Задача внутри проекта.</summary>
+        </member>
+        <member name="M:TaskFlowApi.Services.IdempotencyService.ComputeHash(System.Object)">
+            <summary>Хэш тела запроса - SHA256 от сериализованного объекта.</summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
+            <summary>
+            Generates a documentation comment ID for a type.
+            Example: T:Namespace.Outer+Inner`1 becomes T:Namespace.Outer.Inner`1
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.PropertyInfo)">
+            <summary>
+            Generates a documentation comment ID for a property.
+            Example: P:Namespace.ContainingType.PropertyName or for an indexer P:Namespace.ContainingType.Item(System.Int32)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type,System.String)">
+            <summary>
+            Generates a documentation comment ID for a property given its container type and property name.
+            Example: P:Namespace.ContainingType.PropertyName
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.MethodInfo)">
+            <summary>
+            Generates a documentation comment ID for a method (or constructor).
+            For example:
+              M:Namespace.ContainingType.MethodName(ParamType1,ParamType2)~ReturnType
+              M:Namespace.ContainingType.#ctor(ParamType)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.GetTypeDocId(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Generates a documentation ID string for a type.
+            This method handles nested types (replacing '+' with '.'),
+            generic types, arrays, pointers, by-ref types, and generic parameters.
+            The <paramref name="includeGenericArguments"/> flag controls whether
+            constructed generic type arguments are emitted, while <paramref name="omitGenericArity"/>
+            controls whether the generic arity marker (e.g. "`1") is appended.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.NormalizeDocId(System.String)">
+            <summary>
+            Normalizes a documentation comment ID to match the compiler-style format.
+            Strips the return type suffix for ordinary methods but retains it for conversion operators.
+            </summary>
+            <param name="docId">The documentation comment ID to normalize.</param>
+            <returns>The normalized documentation comment ID.</returns>
+        </member>
+    </members>
+</doc>

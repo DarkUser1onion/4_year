@@ -1,0 +1,60 @@
+@page
+@section Meta {
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(HttpContext).RequestToken" />
+}
+@model SecureTodo.Pages.Tasks.IndexModel
+@{
+    ViewData["Title"] = "Мои задачи";
+}
+
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+
+<h2>Задачи</h2>
+
+<p>
+    <a asp-page="/Tasks/Create" class="btn btn-primary">Создать задачу</a>
+</p>
+
+@if (Model.Tasks.Count == 0)
+{
+    <p>Задач пока нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Заголовок</th>
+                <th>Описание</th>
+                <th>Автор</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in Model.Tasks)
+            {
+                <tr>
+                    <td>@task.Title</td>
+                    <td>@task.Description</td>
+                    <td>@task.User?.Email</td>
+                    <td>@(task.IsCompleted ? "Выполнена" : "Активна")</td>
+                    <td>
+                        @{
+                            var canEdit = (await Model.CanEditAsync(task)).Succeeded;
+                        }
+                        @if (canEdit)
+                        {
+                            <a asp-page="/Tasks/Edit" asp-route-id="@task.Id">Редактировать</a>
+                            <button type="button" class="btn-complete" data-task-id="@task.Id">
+                                @(task.IsCompleted ? "Снять отметку" : "Отметить выполненной")
+                            </button>
+                        }
+                        
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

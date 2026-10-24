@@ -1,0 +1,27 @@
+@{
+    Layout = "_Layout";
+}
+
+@section PageHeader {
+    @if (IsSectionDefined("PageHeader"))
+    {
+        @await RenderSectionAsync("PageHeader", required: false)
+    }
+}
+
+@* Кнопка «Печать» рендерится прямо здесь *@
+@if (IsSectionDefined("Actions"))
+{
+    <div class="actions">
+        @await RenderSectionAsync("Actions", required: false)
+    </div>
+}
+
+<div style="display:flex; gap:20px;">
+    <div style="flex: 1 1 auto;">
+        @RenderBody()
+    </div>
+    <aside style="flex: 0 0 280px;">
+        @await Component.InvokeAsync("TrendSummary")
+    </aside>
+</div>
