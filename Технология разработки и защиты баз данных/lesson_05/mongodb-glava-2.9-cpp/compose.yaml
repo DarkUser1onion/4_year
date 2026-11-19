@@ -1,0 +1,100 @@
+# Стенд для примеров главы 2.9 на C++: сервер MongoDB 7, базы курса,
+# mongo-express и контейнер с драйвером. Подробно — в README.md.
+#
+# Команды одинаковые в PowerShell, cmd и терминале macOS/Linux. Запускать из этой папки.
+#
+#   docker compose up -d                             сервер + базы курса + mongo-express
+#   docker compose run --rm cpp primery/01.cpp       один пример
+#   docker compose run --rm cpp primery              все примеры по порядку
+#   docker compose run --rm reset                    вернуть базы в исходное состояние
+#   docker compose down                              остановить (данные остаются)
+#
+# Если порт 27017 или 8081 уже занят: MONGO_PORT=27018 или EXPRESS_PORT=8082
+# в файле .env рядом с этим файлом.
+
+# Имя общее у архивов всех глав: сервер и данные одни, какую главу ни открыть.
+name: mongodb-primery
+
+x-seed: &seed
+  image: mongo:7
+  depends_on:
+    mongo:
+      condition: service_healthy
+  volumes:
+    - ./stend/seed:/seed:ro
+  restart: "no"
+  command:
+    - bash
+    - -c
+    - |
+      count=$$(mongosh --host mongo --quiet --eval 'db.getSiblingDB("shop").orders.countDocuments()')
+      if [ "$$count" != "0" ] && [ -z "$$FORCE" ]; then
+        echo "Базы курса уже загружены (shop.orders: $$count). Сброс: docker compose run --rm reset"
+        exit 0
+      fi
+      for file in /seed/*.json; do
+        name=$$(basename "$$file" .json)
+        mongoimport --host mongo --db "$${name%%.*}" --collection "$${name#*.}" \
+          --file "$$file" --jsonArray --drop --maintainInsertionOrder --quiet
+        printf '%-22s <- %s\n' "$$name" "$$(basename "$$file")"
+      done
+      echo "Готово: базы курса загружены"
+
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+      # mongo-express работает в сети этого контейнера, поэтому его порт публикуется здесь
+      - "127.0.0.1:${EXPRESS_PORT:-8081}:8081"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  # Заливает базы курса, если сервер пустой, и завершается.
+  seed:
+    <<: *seed
+
+  # То же, но перезаписывает базы всегда.
+  reset:
+    <<: *seed
+    profiles: ["tools"]
+    environment:
+      FORCE: "1"
+
+  # Данные в браузере вместо Compass: http://localhost:8081, логин student, пароль student.
+  mongo-express:
+    image: mongo-express:1.0.2
+    depends_on:
+      mongo:
+        condition: service_healthy
+    network_mode: "service:mongo"
+    restart: unless-stopped
+    environment:
+      # 127.0.0.1, а не localhost: Node.js 18 сначала пробует IPv6 ::1, а сервер слушает IPv4
+      ME_CONFIG_MONGODB_URL: mongodb://127.0.0.1:27017/
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: student
+      ME_CONFIG_BASICAUTH_PASSWORD: student
+
+  # Запуск примеров; первая сборка образа идёт несколько минут: драйвер C++ собирается из исходников.
+  # Контейнер подключён к сети сервера: MongoDB в нём доступна по mongodb://localhost:27017.
+  cpp:
+    profiles: ["tools"]
+    build: { context: ., dockerfile: docker/cpp.Dockerfile }
+    image: mongodb-practice/cpp
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    network_mode: "service:mongo"
+    volumes:
+      - .:/work
+    working_dir: /work
+    entrypoint: ["sh", "/work/docker/run.sh"]
+
+volumes:
+  mongo-data:
